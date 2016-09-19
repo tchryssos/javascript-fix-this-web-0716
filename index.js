@@ -9,8 +9,8 @@ var cake = {
     var status = "Decorating with " + this.topping + ". Ready to eat soon!"
     updateFunction(status)
     setTimeout(function() {
-      updateFunction(serve.apply(this, "Happy Eating!", this.customer))
-    }, 2000)
+      updateFunction(serve.call(this, "Happy Eating!", this.customer))
+    }.bind(this), 2000)
   }
 }
 
@@ -20,35 +20,40 @@ var pie = {
   topping: "streusel",
   bakeTemp: "350 degrees",
   bakeTime: "75 minutes",
-  customer: "Tammy"
+  customer: "Tammy",
+  decorate: function(updateFunction){
+    cake.decorate.call(this, updateFunction) }
 }
 
 function makeCake() {
-  var updateCakeStatus;
-  mix(updateCakeStatus)
+  var updateCakeStatus=updateStatus.bind(this);
+  updateCakeStatus.call(this, "Making cake");
+  mix.call(cake,updateCakeStatus);
 }
 
 function makePie() {
-  var updatePieStatus;
-  mix(updatePieStatus)
+  var updatePieStatus=updateStatus.bind(this);
+  updatePieStatus.call(this, "Making pie");
+  mix.call(pie,updatePieStatus);
 }
 
 function updateStatus(statusText) {
-  this.getElementsByClassName("status")[0].innerText = statusText
+  document.getElementById(this.divId).getElementsByClassName("status")[0].innerText = statusText
 }
 
 function bake(updateFunction) {
   var status = "Baking at " + this.bakeTemp + " for " + this.bakeTime
   setTimeout(function() {
-    cool(updateFunction)
-  }, 2000)
+    cool.call(this, updateFunction)
+  }.bind(this), 2000)
+  updateFunction(status)
 }
 
 function mix(updateFunction) {
   var status = "Mixing " + this.ingredients.join(", ")
   setTimeout(function() {
-    bake(updateFunction)
-  }, 2000)
+    bake.call(this, updateFunction)
+  }.bind(this), 2000)
   updateFunction(status)
 }
 
@@ -56,12 +61,19 @@ function cool(updateFunction) {
   var status = "It has to cool! Hands off!"
   setTimeout(function() {
     this.decorate(updateFunction)
-  }, 2000)
+  }.bind(this), 2000)
+  updateFunction(status)
 }
 
 function makeDessert() {
-  //add code here to decide which make... function to call
-  //based on which link was clicked
+  if (this.innerHTML === "Make Cake"){
+    cake.divId=this.parentElement.id;
+    makeCake.call(cake);
+  }
+  else if (this.innerHTML === "Make Pie"){
+    pie.divId=this.parentElement.id;
+  makePie.call(pie);
+  }
 }
 
 function serve(message, customer) {

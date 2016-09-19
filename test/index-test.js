@@ -11,7 +11,7 @@ describe('index', function() {
 
       this.clock = useFakeTimers();
     })
-
+ 
     after(function() {
       this.clock.restore()
     })
